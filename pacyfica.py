@@ -50,7 +50,6 @@ class PacifycaSession:
         )
 
         if login_resp.status_code == 302:
-            print("Logged in")
             self.is_logged_in = True
 
 
@@ -77,12 +76,3 @@ class PacifycaSessionAloy(PacifycaSession):
     
     def end_session(self):
         self.session.close()
-
-def test():
-    pacifyca = PacifycaSessionAloy(username="USERNAME", password="PASSWORD")
-
-    pacifyca.login()
-
-    print(pacifyca._get_academic_periods_json())
-    print(pacifyca._get_attendance_json(academic_period_id=5, student_period_id=69064))
-    pacifyca.end_session()
