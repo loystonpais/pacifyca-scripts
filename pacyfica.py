@@ -23,17 +23,9 @@ class PacifycaSession:
             return token
         else:
             raise Exception("couldn't get the csrf token")
-        
 
-    def _update_session(self, req) -> requests.models.Response:
-        self.session = req.cookies.get("pacifyca_session")
-        print("session: ", self.session)
-
-    def request(self, method, url, **kwargs):
-        return requests.request(method, url=url, cookies={"pacifyca_session": self.session}, **kwargs)
-        
     def login(self, csrf_method="html"):
-        # first make an initial get requeset to get the csrf token
+        # first make an initial get request to get the csrf token
         resp = requests.get(self.url)
         if csrf_method == "html":
             self.csrf_token = self.get_csrf_from_html(resp.text)
@@ -52,6 +44,8 @@ class PacifycaSession:
         if login_resp.status_code == 302:
             self.is_logged_in = True
 
+    def end_session(self):
+        self.session.close()
 
 class PacifycaSessionAloy(PacifycaSession):
     academic_periods_path = "/json/student-dashboard/attendance/get-attendance-academic-periods"
@@ -74,5 +68,23 @@ class PacifycaSessionAloy(PacifycaSession):
                 student_period_id=student_period_id)
         ).json()
     
-    def end_session(self):
-        self.session.close()
+    def _get_student_details_json(self, student_id=None):
+        return self.session.get(
+            self.url + "/json/student-dashboard/student-details/get-student-details",
+            params=dict(student_id=student_id)
+        ).json()
+    
+    def _get_academic_periods_json(self, student_id=None):
+        return self.session.get(
+            self.url + "/json/student-dashboard/student-details/academic-periods",
+            params=dict(student_id=student_id)
+        ).json()
+    
+    def _get_marks_json(self, student_id=None):
+        return self.session.get(
+            self.url + "/json/student-dashboard/marks",
+            params=dict(student_id=student_id)
+        ).json()
+    
+    
+    
